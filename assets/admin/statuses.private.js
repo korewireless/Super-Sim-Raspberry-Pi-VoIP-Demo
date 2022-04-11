@@ -14,10 +14,10 @@ async function checkEnvironmentInitialization(context) {
   };
   if (!environment) {
     status.description = stripIndents`
-    This application is **must be** deployed. 
-    
+    This application is **must be** deployed.
+
     To deploy this function, use the following command:
-    
+
     \`\`\`bash
     twilio serverless:deploy
     \`\`\`
@@ -26,13 +26,9 @@ async function checkEnvironmentInitialization(context) {
     // eslint-disable-next-line no-negated-condition
   } else if (!process.env.INITIALIZED) {
     status.description = stripIndents`
-    The SIP Quickstart requires that you setup a few things on your account. 
-    
-    We've written some tools that will initialize the various parts to use this tool.
-    
-    To initialize your environment, click the button below.
-    
-    We'll explain what each of these parts are after we get started.
+    This demo requires that you setup a few things on your account.
+
+    To initialize your environment, please click the button below.
     `;
     status.actions = [
       {
@@ -43,7 +39,7 @@ async function checkEnvironmentInitialization(context) {
   } else {
     status.valid = true;
     status.description = stripIndents`
-    Your application is initialized! View your [running application](../index.html)
+    Your application is initialized. View your [running application here](../index.html).
 
     The *default* password for the credentials that were created is \`${context.DEFAULT_SIP_USER_PASSWORD}\`.
     `;
@@ -52,7 +48,7 @@ async function checkEnvironmentInitialization(context) {
 }
 
 function missingSipDomainError(error) {
-  return `Uh oh, couldn't find your specified [SIP Domain](https://www.twilio.com/console/voice/sip/endpoints) (\`${process.env.SIP_DOMAIN_SID}\`).`;
+  return `Sorry, your specified [SIP Domain](https://www.twilio.com/console/voice/sip/endpoints) (\`${process.env.SIP_DOMAIN_SID}\`) can\`t be found.`;
 }
 
 async function getSipDomainStatus(context) {
@@ -61,7 +57,7 @@ async function getSipDomainStatus(context) {
   const domainName = context.DOMAIN_NAME;
   const status = {
     valid: false,
-    title: `SIP Domain is created and defined in the environment`,
+    title: `SIP Domain created and defined in the environment`,
   };
   if (process.env.SIP_DOMAIN_SID) {
     try {
@@ -91,7 +87,7 @@ async function getSipDomainStatus(context) {
       const domain = results[0];
       status.description = stripIndents`
       We found an existing [SIP Domain](https://www.twilio.com/console/voice/sip/endpoints/${domain.sid}) with the name of \`${friendlyName}\.
-      
+
       Would you like to use this app?
       `;
       status.actions = [
@@ -114,8 +110,8 @@ async function getSipDomainStatus(context) {
     } else {
       status.description = stripIndents`
       We need to create a new SIP Domain. You can do this by clicking the button below.
-      
-      You can do this [via the API or CLI](https://www.twilio.com/docs/voice/sip/api/sip-domain-resource?code-sample=code-create-a-sipdomain-resource&code-language=Node.js&code-sdk-version=3.x).
+
+      You can also do this [via the API or CLI](https://www.twilio.com/docs/voice/sip/api/sip-domain-resource?code-sample=code-create-a-sipdomain-resource&code-language=Node.js&code-sdk-version=3.x).
       `;
       status.actions = [
         {
@@ -138,7 +134,7 @@ async function getCredentialListStatus(context) {
   const status = {
     valid: false,
     title:
-      'Default Credential List is created, loaded and mapped to your SIP Domain',
+      'Default credential list created, loaded, and mapped to your SIP Domain',
   };
   const createAction = {
     title: 'Create new default credential list',
@@ -165,15 +161,15 @@ async function getCredentialListStatus(context) {
       if (missing.length === 0) {
         status.valid = true;
         status.description = stripIndents`
-          Your default credential list [${credentialList.friendlyName}](https://www.twilio.com/console/voice/sip/cls/${credentialList.sid}) contains the ${expectedUsernames.length} expected accounts.
+          Your default credential list, \'[${credentialList.friendlyName}](https://www.twilio.com/console/voice/sip/cls/${credentialList.sid})\', contains the ${expectedUsernames.length} expected accounts.
         `;
       } else {
         status.description = stripIndents`
-          Your default credential list [${
+          Your default credential list, \' [${
             credentialList.friendlyName
           }](https://www.twilio.com/console/voice/sip/cls/${
           credentialList.sid
-        }) is missing the following accounts:
+        }),\', is missing the following accounts:
 
           ${missing.join(', ')}
         `;
@@ -191,12 +187,12 @@ async function getCredentialListStatus(context) {
       }
     } catch (err) {
       console.log(`Error: ${err}`);
-      status.description = `Uh oh. We were unable to find your default credential list defined in your environment. Let's build a new one.`;
+      status.description = `Sorry, the default credential list defined in your environment could not be found. Let's build a new one.`;
       status.actions = [createAction];
     }
   } else {
     status.description =
-      "You currently haven't defined the Default Credential List.";
+      "You currently haven't defined the default credential list.";
     status.actions = [createAction];
   }
   return status;
@@ -212,7 +208,7 @@ async function getIncomingNumberStatus(context) {
   )}`;
   const status = {
     valid: false,
-    title: 'Incoming Number is defined and wired up',
+    title: 'Incoming phone number defined and wired up',
   };
   const allIncomingNumbers = await client.incomingPhoneNumbers.list();
   chooseNumberActions = allIncomingNumbers.map((number) => {
@@ -244,7 +240,7 @@ async function getIncomingNumberStatus(context) {
         ];
       } else {
         status.description = stripIndents`
-        Your currently defined incoming number ${incomingNumber} has a Webhook set to \`${numberObject.voiceUrl}\` when it should be \`${expectedFn}\`
+        Your currently defined incoming number ${incomingNumber} has a Webhook set to \`${numberObject.voiceUrl}\` when it should be \`${expectedFn}\`.
 
         Update this by choosing the action below.
         `;
@@ -266,7 +262,7 @@ async function getIncomingNumberStatus(context) {
       // Not found
     } else {
       status.description = stripIndents`
-      Uh oh. Your incoming number ${process.env.INCOMING_NUMBER} is no longer found.
+      Sorry, your incoming number, ${process.env.INCOMING_NUMBER}, can\'t be found.
 
       Choose from an existing number or [buy a new one](https://www.twilio.com/console/phone-numbers/search).
 
@@ -287,7 +283,7 @@ async function getCallerIdStatus(context) {
   const callerId = process.env.CALLER_ID;
   const status = {
     valid: false,
-    title: 'Caller ID is set to a valid number',
+    title: 'Caller ID set to a valid number',
   };
   // Get All Owned Numbers and Verified Numbers
   const incomingNumbers = await client.incomingPhoneNumbers.list();
@@ -310,13 +306,13 @@ async function getCallerIdStatus(context) {
       ];
     } else {
       status.description = stripIndents`
-      Your CallerID is set to ${process.env.CALLER_ID}, but that number is not yet verified.
-      
+      Your Caller ID is set to ${process.env.CALLER_ID}, but that number is not yet verified.
+
       You can [verify it via the console](https://www.twilio.com/console/phone-numbers/verified), [CLI or API](https://www.twilio.com/docs/voice/api/outgoing-caller-ids).
       `;
     }
   } else {
-    status.description = `Your outgoing caller ID can be set to any Twilio number that you've purchased or any numbers that are verified on your account. `;
+    status.description = `Your outgoing Caller ID can be set to any Twilio number that you've purchased or any numbers that are verified on your account. `;
     status.actions = incomingNumbers.map((num) => ({
       title: `Choose Twilio # ${num.friendlyName}`,
       name: 'setCallerId',
@@ -346,7 +342,7 @@ async function getSipDomainIsWiredUp(context) {
   )}`;
   const sipDomainSid = process.env.SIP_DOMAIN_SID;
   const status = {
-    title: 'SIP Domain is configured to route outbound calls',
+    title: 'SIP Domain configured to route outbound calls',
     valid: false,
   };
   // eslint-disable-next-line no-negated-condition
@@ -361,10 +357,10 @@ async function getSipDomainIsWiredUp(context) {
         status.description = `SIP Domain Voice URL: \`${expectedFn}\``;
       } else {
         status.description = stripIndents`
-        Your SIP Domain's ( [${domain.friendlyName}](https://www.twilio.com/console/voice/sip/endpoints/${domain.sid}) ) current Incoming Voice Url is \`${domain.voiceUrl}\`. 
-        
-        To work in this environment the Incoming Voice Url should be set to \`${expectedFn}\`. 
-        
+        Your SIP Domain\'s current Incoming Voice URL is \`${domain.voiceUrl}\`.
+
+        To work in this environment the Incoming Voice Url should be set to \`${expectedFn}\`.
+
         You can update this by clicking the button below.
         `;
         status.actions = [
@@ -391,10 +387,10 @@ async function getDefaultPasswordChanged(context) {
   };
   if (process.env.ADMIN_PASSWORD === 'default') {
     status.description = stripIndents`
-    Please take a moment to change your admin password from the provided default password. 
-    
+    Please take a moment to change your admin password from the provided default password.
+
     You can do this by editing the \`ADMIN_PASSWORD\` value in the \`.env\` in the root of this project.
-    
+
     After you have saved that file, please redeploy.
 
     \`\`\`bash
